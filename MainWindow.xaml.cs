@@ -24,19 +24,23 @@ namespace MazeGenerator
     /// </summary>
     public partial class MainWindow : Window
     {
-       public struct Vector
+        //public int x { get; set; }
+        
+        public class Vector
         {
-           public int x, y;
-           public Vector(int X, int Y) {
+            public int x { get; set; }
+            public int y { get; set; }
+        
+        public Vector(int X, int Y) {
                 x = X;
                 y = Y;
             }
         }
-
-        static Vector size = new Vector(31, 31);
+        static Vector size { get; set; } = new Vector(31, 31);
         bool[,] table = new bool[size.x, size.y];
         public void Clear()
         {
+            table = new bool[size.x, size.y];
             Random r = new Random();
 
             for (int i = 0; i < size.x; i++)
@@ -168,6 +172,7 @@ namespace MazeGenerator
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = size;
             Clear();
             Division(new Vector(1, 1), new Vector(size.x - 1, size.y - 1));
             Draw();
@@ -176,10 +181,12 @@ namespace MazeGenerator
 
         private void Gomb_Click(object sender, RoutedEventArgs e)
         {
+            size.x = size.x * 2 / 2 + 1;
+            size.y = size.y * 2 / 2 + 1;
             Clear();
             Division(new Vector(1, 1), new Vector(size.x - 1, size.y - 1));
             Draw();
-
+            Trace.WriteLine(size.x);
         }
 
     }

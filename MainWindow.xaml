@@ -14,5 +14,7 @@
         </Grid.ColumnDefinitions>
         <Canvas x:Name="Kanvasz" SnapsToDevicePixels="True" Grid.ColumnSpan="3" Margin="50,50,50,50" MinWidth="500" MinHeight="500" Width="700" Height="690" Visibility="Visible"/>
         <Button x:Name="Gomb" Click="Gomb_Click" Content="Randomizator" Grid.Column="2" HorizontalAlignment="Left" Margin="220,750,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Name="xvalue" Margin="50,17,0,0" Text="{Binding Path=x, Mode=TwoWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <TextBox HorizontalAlignment="Left" Margin="211,17,0,0" Text="{Binding Path=y, Mode=TwoWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
     </Grid>
 </Window>
