@@ -5,16 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MazeGenerator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="800" Background="#FF1F1F1F">
-    <Grid Width="800" RenderTransformOrigin="0.5,0.5" Height="790" VerticalAlignment="Top" Background="#FF1F1F1F">
+        SizeChanged="Window_SizeChanged"
+        Title="MainWindow" Background="#FF1F1F1F" Height="600" MinWidth="600" MinHeight="600" Width="600">
+    <Grid RenderTransformOrigin="0.5,0.5" VerticalAlignment="Stretch" Background="#FF1F1F1F">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="331*"/>
-            <ColumnDefinition Width="121*"/>
-            <ColumnDefinition Width="348*"/>
         </Grid.ColumnDefinitions>
-        <Canvas x:Name="Kanvasz" SnapsToDevicePixels="True" Grid.ColumnSpan="3" Margin="50,50,50,50" MinWidth="500" MinHeight="500" Width="700" Height="690" Visibility="Visible"/>
-        <Button x:Name="Gomb" Click="Gomb_Click" Content="Randomizator" Grid.Column="2" HorizontalAlignment="Left" Margin="220,750,0,0" VerticalAlignment="Top"/>
-        <TextBox HorizontalAlignment="Left" Name="xvalue" Margin="50,17,0,0" Text="{Binding Path=x, Mode=TwoWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox HorizontalAlignment="Left" Margin="211,17,0,0" Text="{Binding Path=y, Mode=TwoWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <Canvas x:Name="Kanvasz" SnapsToDevicePixels="True" Grid.ColumnSpan="3" Margin="75,75,75,100" Visibility="Visible" MinHeight="5"/>
+        <Button x:Name="Gomb" Click="Gomb_Click" Content="Randomizator" Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,40,40" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5"/>
+        <TextBox HorizontalAlignment="Left" Name="xvalue" Margin="50,17,0,0"  Text="{Binding Path=inputx, Mode=TwoWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" />
+        <TextBox HorizontalAlignment="Left" Name="yvalue" Margin="211,17,0,0" Text="{Binding Path=inputy, Mode=TwoWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" />
+        <CheckBox Content="Grid" HorizontalAlignment="Left" Margin="357,18,0,0" VerticalAlignment="Top"  Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" Foreground="White"/>
     </Grid>
 </Window>
