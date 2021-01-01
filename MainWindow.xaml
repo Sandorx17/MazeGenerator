@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MazeGenerator"
         mc:Ignorable="d"
         SizeChanged="Window_SizeChanged"
-        Title="MainWindow" Background="#FF1F1F1F" Height="600" MinWidth="600" MinHeight="600" Width="600">
+        Title="MazeGenerator2000" Background="#FF1F1F1F" Height="600" MinWidth="600" MinHeight="600" Width="600">
     <Grid RenderTransformOrigin="0.5,0.5" VerticalAlignment="Stretch" Background="#FF1F1F1F">
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>

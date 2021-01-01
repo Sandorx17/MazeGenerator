@@ -19,7 +19,6 @@ using System.Windows.Threading;
 
 namespace MazeGenerator
 {
-
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -27,14 +26,12 @@ namespace MazeGenerator
     {
         public int inputx { get; set; } = 10;
         public int inputy { get; set; } = 10;
-        //public int x { get; set; }
-
         public class Vector
         {
             public int x { get; set; }
-            public int y { get; set; }
-        
-        public Vector(int X, int Y) {
+            public int y { get; set; }        
+            public Vector(int X, int Y) 
+            {
                 x = X;
                 y = Y;
             }
@@ -45,7 +42,6 @@ namespace MazeGenerator
         {                
             table = new bool[size.x, size.y];
             Random r = new Random();
-
             for (int i = 0; i < size.x; i++)
             {
                 for (int j = 0; j < size.y; j++)
@@ -62,7 +58,7 @@ namespace MazeGenerator
             table[(r.Next(1, (size.x - 1) / 2)) * 2 + 1, 0] = false;
             table[(r.Next(1, (size.x - 1) / 2)) * 2 + 1, size.y - 1] = false;
         }
-        public void Line(Vector start,Vector end, int stroke = 2, Color ?color=null)
+        public void Line(Vector start,Vector end, int stroke = 1, Color ?color=null)
         {
             color ??= Colors.White;
             double ratio1 = Kanvasz.ActualWidth / (size.x - 1);
@@ -84,7 +80,7 @@ namespace MazeGenerator
         bool Empty(int x, int y) => Empty(new Vector(x, y));
         bool grid = false;
         public void Draw()
-        {            
+        {
             Kanvasz.Children.Clear();
             if(grid==true)
             {
@@ -132,7 +128,7 @@ namespace MazeGenerator
             int w = BotR.x - TopL.x;
             int h = BotR.y - TopL.y;
             int door;
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => {                       
+            //Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => {
             Random random = new Random();
             if (BotR.x - TopL.x < 3 || BotR.y - TopL.y < 3)
             {
@@ -174,10 +170,10 @@ namespace MazeGenerator
                 }
                 Division(new Vector(TopL.x, TopL.y), new Vector(BotR.x, row));
                 Division(new Vector(TopL.x, row), new Vector(BotR.x, BotR.y));
+                
             }
-            Draw();
-            //Thread.Sleep(300);
-            }));
+            this.Dispatcher.BeginInvoke(Draw); Thread.Sleep(20);
+            //}));
         }        
         public MainWindow()
         {
@@ -185,14 +181,11 @@ namespace MazeGenerator
             DataContext = this;
             size.x = inputx  * 2 + 1;
             size.y = inputy * 2 + 1;
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => {
             Clear();
-            Division(new Vector(1, 1), new Vector(size.x - 1, size.y - 1));
-            Draw();
-            }));
         }
-        private void Gomb_Click(object sender, RoutedEventArgs e)
+        private async void Gomb_Click(object sender, RoutedEventArgs e)
         {
+            Gomb.IsEnabled = false;
             inputx = Math.Max(inputx, 3);
             if (Math.Min(inputx, 3)==3)
             {
@@ -202,12 +195,13 @@ namespace MazeGenerator
             if (Math.Min(inputy, 3) == 3)
             {
                 yvalue.Text = $"{inputy}";
-            }
-            
+            }           
             size.x = inputx * 2 + 1;
             size.y = inputy * 2 + 1;
-            Clear();
-            Division(new Vector(1, 1), new Vector(size.x - 1, size.y - 1));
+            Clear();           
+            await Task.Run(()=> Division(new Vector(1, 1), new Vector(size.x - 1, size.y - 1)));
+            //Division(new Vector(1, 1), new Vector(size.x - 1, size.y - 1));
+            Gomb.IsEnabled = true;
             Draw();
         }
 
