@@ -15,5 +15,6 @@
         <TextBox HorizontalAlignment="Left" Name="xvalue" Margin="50,17,0,0"  Text="{Binding Path=inputx, Mode=TwoWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" />
         <TextBox HorizontalAlignment="Left" Name="yvalue" Margin="211,17,0,0" Text="{Binding Path=inputy, Mode=TwoWay}" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" />
         <CheckBox Content="Grid" HorizontalAlignment="Left" Margin="357,18,0,0" VerticalAlignment="Top"  Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" Foreground="White"/>
+        <Button Content="Show Path" Margin="0,0,131,40" Click="Button_Click" HorizontalAlignment="Right" Width="72" Height="20" VerticalAlignment="Bottom"/>
     </Grid>
 </Window>

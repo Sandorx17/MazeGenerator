@@ -20,42 +20,15 @@ using System.Windows.Threading;
 
 namespace MazeGenerator
 {
-    public class node
-    {
-        public List<node> neighbours = new List<node>();
-        public int x;
-        public int y;
-        public override string ToString()
-        {
-            return $"{x},{y}";
-        }
-        public string longToString()
-        {
-            string neighboursOut = "";
-            for (int x = 0; x < neighbours.Count; x++)
-            {
-                neighboursOut  += "-"+neighbours[x].ToString();
-            }
-            return $"{this.ToString()},{neighboursOut}";
-        }
-        public node(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-
-        }
-        public static explicit operator Vector(node n) => new Vector(n.x,n.y);
-
-
-    }
+    
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        public int inputx { get; set; } = 10;
-        public int inputy { get; set; } = 10;
+        public int inputx { get; set; } = 5;
+        public int inputy { get; set; } = 5;
         public class Vector
         {
             public int x { get; set; }
@@ -66,51 +39,16 @@ namespace MazeGenerator
                 y = Y;
             }
 
-            public static explicit operator Vector(node v)
+            public static explicit operator Vector(PathFind.Node v)
             {
                 return new Vector(v.x, v.y);
             }
         }
-        static Vector size { get; set; } = new Vector(5, 5);
+        public static Vector size { get; set; } = new Vector(5, 5);
         bool[,] table = new bool[size.x, size.y];
-        public node[,] graph()
-        {
-            node[,] graph = new node[size.x,size.y];
-
-            for (int x = 0; x < size.x; x++)
-            {
-
-                for (int y = 0; y < size.y; y++)
-                {
-                    graph[x, y] = new node(x,y);
-                    
-                }
-            }
-            for (int x = 0; x < size.y-1; x++)
-            {
-                for (int y = 0; y < size.y-1; y++)
-                {
-                    if (table[x, y] == false)
-                    {
-                        if (table[x + 1, y] == false)
-                        {
-                            graph[x, y].neighbours.Add(graph[x + 1, y]);
-                            graph[x + 1, y].neighbours.Add(graph[x, y]);
-                        }
-                        if (table[x, y + 1] == false)
-                        {
-                            graph[x, y].neighbours.Add(graph[x, y + 1]);
-                            graph[x, y + 1].neighbours.Add(graph[x, y]);
-                        }
-                    }
-                }
-            }
-
-            return graph;
-           
-        }
         
-        public void DrawPath(List<node> path)
+        
+        public void DrawPath(List<PathFind.Node> path)
         {
 
             for (int i = 0; i < path.Count-1; i++)
@@ -119,7 +57,8 @@ namespace MazeGenerator
             }
 
         }
-
+        PathFind.Node enter = new PathFind.Node(0, 0);
+        PathFind.Node exit = new PathFind.Node(0, 0);
         public void Clear()
         {                
             table = new bool[size.x, size.y];
@@ -137,8 +76,14 @@ namespace MazeGenerator
 
                 }
             }
-            table[(r.Next(1, (size.x - 1) / 2)) * 2 + 1, 0] = false;
-            table[(r.Next(1, (size.x - 1) / 2)) * 2 + 1, size.y - 1] = false;
+            int r1 = (r.Next(1, (size.x - 1) / 2)) * 2 + 1;
+            table[r1, 0] = false;
+            enter.x = r1;
+            enter.y = 0;
+            int r2 = (r.Next(1, (size.x - 1) / 2)) * 2 + 1;
+            table[r2, size.y - 1] = false;
+            exit.x = r2;
+            exit.y = size.y - 1;
         }
         public void Line(Vector start,Vector end, int stroke = 1, Color ?color=null)
         {
@@ -174,6 +119,7 @@ namespace MazeGenerator
                 {
                     Line(new Vector(0, i), new Vector(size.x - 1, i), 1, color: Colors.Black);
                 }
+                DrawPath(PathFind.A_Star(enter, exit));
             }
             for (int y = 0; y < size.y; y++)
             {
@@ -267,10 +213,9 @@ namespace MazeGenerator
             size.x = inputx  * 2 + 1;
             size.y = inputy * 2 + 1;
             Clear();
-           
         }
         private async void Gomb_Click(object sender, RoutedEventArgs e)
-        {
+        { 
             Gomb.IsEnabled = false;
             inputx = Math.Max(inputx, 3);
             if (Math.Min(inputx, 3)==3)
@@ -289,21 +234,31 @@ namespace MazeGenerator
             //Division(new Vector(1, 1), new Vector(size.x - 1, size.y - 1));
             Gomb.IsEnabled = true;
             Draw();
-            var g = graph();
+
+            var g = PathFind.graph(table);
             for (int i = 0; i < size.x; i++)
             {
                 for (int j = 0; j < size.y; j++)
                 {
-
-                    Trace.WriteLine(g[i, j].longToString());
+                    if (g[i,j].x==enter.x && g[i, j].y == enter.y)
+                    {
+                        enter.neighbours = g[i, j].neighbours;
+                    }
+                    if (g[i, j].x == exit.x && g[i, j].y == exit.y)
+                    {
+                        exit.neighbours = g[i, j].neighbours;
+                    }
+                    //Trace.WriteLine(g[i, j].longToString());
                 }
             }
+            //DrawPath(PathFind.A_Star(enter, exit));
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => {
                 Draw();
+                DrawPath(PathFind.A_Star(enter, exit));
             }));
         }
 
@@ -319,5 +274,9 @@ namespace MazeGenerator
             Draw();
         }
 
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            DrawPath(PathFind.A_Star(enter, exit));
+        }
     }
 }
