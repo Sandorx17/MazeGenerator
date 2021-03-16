@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -19,6 +20,35 @@ using System.Windows.Threading;
 
 namespace MazeGenerator
 {
+    public class node
+    {
+        public List<node> neighbours = new List<node>();
+        public int x;
+        public int y;
+        public override string ToString()
+        {
+            return $"{x},{y}";
+        }
+        public string longToString()
+        {
+            string neighboursOut = "";
+            for (int x = 0; x < neighbours.Count; x++)
+            {
+                neighboursOut  += "-"+neighbours[x].ToString();
+            }
+            return $"{this.ToString()},{neighboursOut}";
+        }
+        public node(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+
+        }
+        public static explicit operator Vector(node n) => new Vector(n.x,n.y);
+
+
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -35,9 +65,61 @@ namespace MazeGenerator
                 x = X;
                 y = Y;
             }
+
+            public static explicit operator Vector(node v)
+            {
+                return new Vector(v.x, v.y);
+            }
         }
         static Vector size { get; set; } = new Vector(5, 5);
         bool[,] table = new bool[size.x, size.y];
+        public node[,] graph()
+        {
+            node[,] graph = new node[size.x,size.y];
+
+            for (int x = 0; x < size.x; x++)
+            {
+
+                for (int y = 0; y < size.y; y++)
+                {
+                    graph[x, y] = new node(x,y);
+                    
+                }
+            }
+            for (int x = 0; x < size.y-1; x++)
+            {
+                for (int y = 0; y < size.y-1; y++)
+                {
+                    if (table[x, y] == false)
+                    {
+                        if (table[x + 1, y] == false)
+                        {
+                            graph[x, y].neighbours.Add(graph[x + 1, y]);
+                            graph[x + 1, y].neighbours.Add(graph[x, y]);
+                        }
+                        if (table[x, y + 1] == false)
+                        {
+                            graph[x, y].neighbours.Add(graph[x, y + 1]);
+                            graph[x, y + 1].neighbours.Add(graph[x, y]);
+                        }
+                    }
+                }
+            }
+
+            return graph;
+           
+        }
+        
+        public void DrawPath(List<node> path)
+        {
+
+            for (int i = 0; i < path.Count-1; i++)
+            {
+                Line((Vector)path[i], (Vector)path[i+1],color:Colors.Red);
+            }
+
+        }
+
         public void Clear()
         {                
             table = new bool[size.x, size.y];
@@ -123,57 +205,60 @@ namespace MazeGenerator
                 }
             }
         }
-        public void Division(Vector TopL,Vector BotR ) //Recursive Division
+        public void Division(Vector TopL, Vector BotR) //Recursive Division
         {
             int w = BotR.x - TopL.x;
             int h = BotR.y - TopL.y;
             int door;
             //Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => {
-            Random random = new Random();
-            if (BotR.x - TopL.x < 3 || BotR.y - TopL.y < 3)
-            {
-                return;
-            }
-            if ((BotR.x - TopL.x) > (BotR.y - TopL.y) || ((BotR.x - TopL.x) == (BotR.y - TopL.y) && random.Next(0, 2) == 0))
-            {
-                //szélesebb --> függőlegesvágás
-                int col = (random.Next(TopL.x + 2, BotR.x - 1)) / 2 * 2;
-                if (h == 3)
+                Random random = new Random();
+                if (BotR.x - TopL.x < 3 || BotR.y - TopL.y < 3)
                 {
-                    door = (random.Next(TopL.y+1, BotR.y));
+                    return;
+                }
+                if ((BotR.x - TopL.x) > (BotR.y - TopL.y) || ((BotR.x - TopL.x) == (BotR.y - TopL.y) && random.Next(0, 2) == 0))
+                {
+                    //szélesebb --> függőlegesvágás
+                    int col = (random.Next(TopL.x + 2, BotR.x - 1)) / 2 * 2;
+                    if (h == 3)
+                    {
+                        door = (random.Next(TopL.y + 1, BotR.y));
+                    }
+                    else
+                    {
+                        door = (random.Next(TopL.y, BotR.y - 1)) / 2 * 2 + 1;
+                    }
+                    for (int i = TopL.y; i < BotR.y; i++)
+                    {
+                        table[col, i] = i != door;
+                    }
+                    Division(new Vector(TopL.x, TopL.y), new Vector(col, BotR.y));
+                    Division(new Vector(col, TopL.y), new Vector(BotR.x, BotR.y));
                 }
                 else
                 {
-                    door = (random.Next(TopL.y, BotR.y - 1)) / 2 * 2 + 1;
+                    int row = (random.Next(TopL.y + 2, BotR.y - 1)) / 2 * 2;
+                    if (w == 3)
+                    {
+                        door = (random.Next(TopL.x + 1, BotR.x));
+                    }
+                    else
+                    {
+                        door = (random.Next(TopL.x, BotR.x - 1)) / 2 * 2 + 1;
+                    }
+                    for (int i = TopL.x; i < BotR.x; i++)
+                    {
+                        table[i, row] = i != door;
+                    }
+                    Division(new Vector(TopL.x, TopL.y), new Vector(BotR.x, row));
+                    Division(new Vector(TopL.x, row), new Vector(BotR.x, BotR.y));
+
                 }
-                for (int i = TopL.y; i < BotR.y; i++)
-                {
-                    table[col, i] = i != door;
-                }
-                Division(new Vector(TopL.x, TopL.y), new Vector(col, BotR.y));
-                Division(new Vector(col, TopL.y), new Vector(BotR.x, BotR.y));
-            }
-            else
-            {
-                int row = (random.Next(TopL.y + 2, BotR.y - 1)) / 2 * 2;
-                if (w == 3)
-                {
-                    door = (random.Next(TopL.x+1, BotR.x));
-                }
-                else
-                {
-                    door = (random.Next(TopL.x, BotR.x - 1)) / 2 * 2 + 1;
-                }
-                for (int i = TopL.x; i < BotR.x; i++)
-                {
-                    table[i, row] = i != door;
-                }
-                Division(new Vector(TopL.x, TopL.y), new Vector(BotR.x, row));
-                Division(new Vector(TopL.x, row), new Vector(BotR.x, BotR.y));
-                
-            }
-            this.Dispatcher.BeginInvoke(Draw); Thread.Sleep(20);
+               //this.Dispatcher.BeginInvoke(Draw);// Thread.Sleep(50);
             //}));
+            //this.Dispatcher.Thread.Join();
+            
+                //Gomb.IsEnabled = true;            
         }        
         public MainWindow()
         {
@@ -182,6 +267,7 @@ namespace MazeGenerator
             size.x = inputx  * 2 + 1;
             size.y = inputy * 2 + 1;
             Clear();
+           
         }
         private async void Gomb_Click(object sender, RoutedEventArgs e)
         {
@@ -203,6 +289,15 @@ namespace MazeGenerator
             //Division(new Vector(1, 1), new Vector(size.x - 1, size.y - 1));
             Gomb.IsEnabled = true;
             Draw();
+            var g = graph();
+            for (int i = 0; i < size.x; i++)
+            {
+                for (int j = 0; j < size.y; j++)
+                {
+
+                    Trace.WriteLine(g[i, j].longToString());
+                }
+            }
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -223,5 +318,6 @@ namespace MazeGenerator
             grid = false;
             Draw();
         }
+
     }
 }
